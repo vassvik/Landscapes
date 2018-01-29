@@ -1,0 +1,18 @@
+# Debug Makefile
+
+SRC=src\main.cpp
+OBJ=src\main.obj
+CFLAGS=/Iinclude /std:c++latest /EHsc /Zi
+LFLAGS=lib\glfw3.lib gdi32.lib libcmt.lib shell32.lib winhttp.lib #lib\imgui.lib lib\stb.lib
+
+
+all: exe  
+
+.cpp.obj:
+  cl.exe /nologo $(CFLAGS) /c $*.cpp /Fo$*.obj
+
+exe: $(OBJ) 
+  link.exe /nologo /DEBUG -out:main.exe $** $(LFLAGS)	
+
+clean:
+  del src\*.obj main.exe

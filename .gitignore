@@ -1,0 +1,9 @@
+*.exe
+*.obj
+*.sublime-workspace
+*.pdb
+*.ilk
+.vs
+lib
+include
+dependencies
