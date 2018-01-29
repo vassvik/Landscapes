@@ -3,7 +3,7 @@
 SRC=src\main.cpp
 OBJ=src\main.obj
 CFLAGS=/Iinclude /std:c++latest /EHsc #/fp:fast /Ox /openmp
-LFLAGS=lib\glfw3.lib gdi32.lib libcmt.lib shell32.lib #lib\imgui.lib lib\stb.lib
+LFLAGS=lib\glfw3.lib gdi32.lib user32.lib libcmt.lib shell32.lib #lib\imgui.lib lib\stb.lib
 
 
 all: exe  
