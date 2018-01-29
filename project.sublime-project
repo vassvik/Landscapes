@@ -1,2 +1,11 @@
 {
+	"folders":
+	[
+		{
+			"name": "Terrain Visualizer",
+			"folder_exclude_patterns": ["dependencies", "lib"],
+			"file_exclude_patterns": ["*.obj", "*.ttf"],
+			"path": "."
+		}
+	]
 }
