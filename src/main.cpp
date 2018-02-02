@@ -180,9 +180,6 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//
-		glUniform1i(glGetUniformLocation(program, "draw_mode"), 0);
-
-		//
 		glBindVertexArray(vao);
 		glDrawArrays(GL_TRIANGLES, 0, mesh.num_vertices);
 
@@ -198,24 +195,21 @@ int main() {
         glReadPixels(int(mx), int(resy-my-1), 1, 1, GL_RGBA, GL_FLOAT, &data[0]);
 
         // update the uniform to tell the shader which primitive is hovered
-        glUniform1i(glGetUniformLocation(program, "chosen_triangle"), int(data[0]+0.5)-1);
-
-		// render to screen
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		//
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, screen_texture);
+        if ((data[0] - 1.0) < 1.0e-4 && (data[1] - 0.7) < 1.0e-4 && (data[2] - 0.4) < 1.0e-4) {
+        	glUniform1i(glGetUniformLocation(program, "chosen_triangle"), -1);
+        } else {
+        	glUniform1i(glGetUniformLocation(program, "chosen_triangle"), data[0]-0.5);
+        	printf("%f %f %f\n", data[0], data[1], data[2]); fflush(stdout);
+        }
 
         //
-		glUniform1i(glGetUniformLocation(program, "draw_mode"), 1);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
+        glReadBuffer(GL_COLOR_ATTACHMENT0);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        glBlitFramebuffer(0, 0, resx, resy,   0, 0, resx, resy,   GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		//
-		glBindVertexArray(vao);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-		//
+        //
 		glfwSwapBuffers(window);
 	}
 
