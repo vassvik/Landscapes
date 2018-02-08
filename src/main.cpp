@@ -125,7 +125,7 @@ int main() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, normal)));
 
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 1, GL_INT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, visibility)));
+    glVertexAttribIPointer(2, 1, GL_INT, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, visibility)));
 
     glEnable(GL_DEPTH_TEST);
 

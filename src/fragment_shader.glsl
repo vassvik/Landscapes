@@ -13,10 +13,16 @@ uniform float clicked_radius;
 uniform vec3 hover_position;
 uniform vec3 clicked_position;
 
+uniform float time;
+
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 info;
 
 uniform bool wireframe;
+
+vec3 palette( float t, vec3 a, vec3 b, vec3 c, vec3 d ) {
+    return a + b*cos( 6.28318*(c*t+d) );
+}
 
 void main() {
 	vec3 click_color = vec3(0.2);
@@ -25,7 +31,14 @@ void main() {
 	if (hover_triangle == gl_PrimitiveID) {
 		color.xyz = hover_color;
 	} else {
-		color.xyz = 0.5 + 0.5*vec3(cos(3.0*visibility), cos(5.0*visibility), cos(7.0*visibility));
+		color.xyz = 0.5 + 0.5*normal;
+		//color.xyz = palette( visibility/10.0, vec3(0.5,0.5,0.5),vec3(0.5,0.5,0.5),vec3(1.0,1.0,1.0),vec3(0.0,0.33,0.67) );
+	    //color.xyz = palette( visibility/10.0, vec3(0.5,0.5,0.5),vec3(0.5,0.5,0.5),vec3(1.0,1.0,1.0),vec3(0.0,0.10,0.20) );
+	    //color.xyz = palette( visibility/10.0, vec3(0.5,0.5,0.5),vec3(0.5,0.5,0.5),vec3(1.0,1.0,1.0),vec3(0.3,0.20,0.20) );
+	    //color.xyz = palette( visibility/10.0, vec3(0.5,0.5,0.5),vec3(0.5,0.5,0.5),vec3(1.0,1.0,0.5),vec3(0.8,0.90,0.30) );
+	    //color.xyz = palette( visibility/10.0, vec3(0.5,0.5,0.5),vec3(0.5,0.5,0.5),vec3(1.0,0.7,0.4),vec3(0.0,0.15,0.20) );
+	    //color.xyz = palette( visibility/10.0, vec3(0.5,0.5,0.5),vec3(0.5,0.5,0.5),vec3(2.0,1.0,0.0),vec3(0.5,0.20,0.25) );
+	    //color.xyz = palette( visibility/10.0, vec3(0.8,0.5,0.4),vec3(0.2,0.4,0.2),vec3(2.0,1.0,1.0),vec3(0.0,0.25,0.25) );
 	}
 	color.w = 1.0;
 
