@@ -256,13 +256,7 @@ int main() {
 	        if (clicked_radius > 0.5) clicked_radius = 0.5;
 	    }
 
-
-
-
-
-
-
-        	// draw
+    	// draw
 	    static float dist = 4.0; 
 	    static float phi = 45.0; 
 	    static float theta = 90.0;   
