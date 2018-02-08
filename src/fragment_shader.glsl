@@ -19,7 +19,11 @@ void main() {
 	vec3 click_color = vec3(0.2);
 	vec3 hover_color = vec3(0.7, 1.0, 0.4);
 
-	color.xyz = 0.5 + 0.5*normal;
+	if (hover_triangle == gl_PrimitiveID) {
+		color.xyz = hover_color;
+	} else {
+		color.xyz = 0.5 + 0.5*normal;
+	}
 	color.w = 1.0;
 
 	if (clicked_triangle != -1) {
@@ -27,8 +31,6 @@ void main() {
 		float w = 1.5*fwidth(d);
 		float s = 0.5*smoothstep(w/2.0, -w/2.0, d - clicked_radius);
 		color.xyz = color.xyz*(1.0 - s) + click_color*s;
-	} else if (hover_triangle == gl_PrimitiveID) {
-		color.xyz = hover_color;
 	}
 
 
