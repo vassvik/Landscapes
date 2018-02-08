@@ -275,7 +275,8 @@ int main() {
 	        if (theta < 1.0) theta = 1.0;
 	    } 
 
-    	dist *= pow(0.95, io.MouseWheel); 
+	    if (!io.KeyCtrl)
+    		dist *= pow(0.95, io.MouseWheel); 
 
 	    Vec3 pos = dist*Vec3(cos(PI/180.0*phi)*sin(PI/180.0*theta), sin(PI/180.0*phi)*sin(PI/180.0*theta), cos(PI/180.0*theta));
 	    Vec3 at = Vec3(0.0, 0.0, 0.0);
