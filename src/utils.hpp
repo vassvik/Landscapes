@@ -79,6 +79,7 @@ Mat4 perspective(float fov, float ratio, float zmin, float zmax);
 struct Vertex {
 	Vec3 position;
 	Vec3 normal;
+	int visibility;
 };
 
 struct Mesh {

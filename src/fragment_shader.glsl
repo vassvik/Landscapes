@@ -3,6 +3,7 @@
 in vec3 position;
 in vec3 position2;
 in vec3 normal;
+flat in int visibility;
 
 uniform int hover_triangle;
 uniform int clicked_triangle;
@@ -15,6 +16,8 @@ uniform vec3 clicked_position;
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 info;
 
+uniform bool wireframe;
+
 void main() {
 	vec3 click_color = vec3(0.2);
 	vec3 hover_color = vec3(0.7, 1.0, 0.4);
@@ -22,7 +25,7 @@ void main() {
 	if (hover_triangle == gl_PrimitiveID) {
 		color.xyz = hover_color;
 	} else {
-		color.xyz = 0.5 + 0.5*normal;
+		color.xyz = 0.5 + 0.5*vec3(cos(3.0*visibility), cos(5.0*visibility), cos(7.0*visibility));
 	}
 	color.w = 1.0;
 
@@ -35,4 +38,6 @@ void main() {
 
 
 	info = vec4(float(gl_PrimitiveID), position2);
+
+	//if (wireframe) color.xyz = vec3(0.0);
 }

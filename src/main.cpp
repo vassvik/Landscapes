@@ -97,12 +97,12 @@ int main() {
 			Vec3 n0 = normalize(cross(v10 - v00, v11 - v00));
 			Vec3 n1 = normalize(cross(v11 - v00, v01 - v00));
 
-			mesh.vertices[6*k+0] = Vertex{v00, n0};
-			mesh.vertices[6*k+1] = Vertex{v10, n0};
-			mesh.vertices[6*k+2] = Vertex{v11, n0};
-			mesh.vertices[6*k+3] = Vertex{v00, n1};
-			mesh.vertices[6*k+4] = Vertex{v11, n1};
-			mesh.vertices[6*k+5] = Vertex{v01, n1};
+			mesh.vertices[6*k+0] = Vertex{v00, n0, k % 11};
+			mesh.vertices[6*k+1] = Vertex{v10, n0, k % 11};
+			mesh.vertices[6*k+2] = Vertex{v11, n0, k % 11};
+			mesh.vertices[6*k+3] = Vertex{v00, n1, k % 11};
+			mesh.vertices[6*k+4] = Vertex{v11, n1, k % 11};
+			mesh.vertices[6*k+5] = Vertex{v01, n1, k % 11};
 		}
 	}
 
@@ -119,10 +119,13 @@ int main() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*mesh.num_vertices, &mesh.vertices[0], GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(Vec3)*0));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, position)));
 
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(Vec3)*1)); 
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, normal)));
+
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 1, GL_INT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, visibility)));
 
     glEnable(GL_DEPTH_TEST);
 
@@ -203,7 +206,17 @@ int main() {
 
 		//
 		glBindVertexArray(vao);
+
+
+		glUniform1i(glGetUniformLocation(program, "wireframe"), 0);
+		glPolygonMode(GL_FRONT_AND_BACK , GL_FILL);
 		glDrawArrays(GL_TRIANGLES, 0, mesh.num_vertices);
+
+		glUniform1i(glGetUniformLocation(program, "wireframe"), 1);
+		glPolygonMode(GL_FRONT_AND_BACK , GL_LINE);
+		glDrawArrays(GL_TRIANGLES, 0, mesh.num_vertices);
+
+		glPolygonMode(GL_FRONT_AND_BACK , GL_FILL);
 
 		//
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
