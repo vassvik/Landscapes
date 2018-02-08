@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include "utils.hpp"
+#include "imgui_impl_glfw_gl3.cpp"
 
 
 int main() {
@@ -41,22 +42,26 @@ int main() {
 		return -3;
 	}
 
+	ImGui::CreateContext();
+	ImGui_ImplGlfwGL3_Init(window, true);
+	//ImGui::StyleColorsDark();
+
 	// 
 	GLuint program = load_shaders("src/vertex_shader.glsl", "src/fragment_shader.glsl");
 
 	//
 	Mesh mesh;
-	int Nx = 10;
+	int Nx = 20;
 	int Ny = 10;
 
 	int num_vertices = (Nx+1)*(Ny+1);
 	Vec3 *base_vertices = new Vec3[3*num_vertices];
 
-	float dx = 1.0/float(Nx);
+	float dx = 1.0/float(Nx)*float(Nx)/float(Ny);
 	float dy = 1.0/float(Ny);
 	for (int j = 0; j <= Ny; j++) {
 		for (int i = 0; i <= Nx; i++) {
-			int k = j*(Ny+1) + i;
+			int k = j*(Nx+1) + i;
 			base_vertices[k] = Vec3{float(i)*dx, float(j)*dy, 0.5f*cosf(2.0*3.14*i*dx)*cosf(2.0*3.14*j*dy)};
 		}
 	}
@@ -73,10 +78,10 @@ int main() {
 			int j0 = j + 0;
 			int j1 = j + 1;
 
-			int k00 = j0*(Ny+1) + i0;
-			int k10 = j0*(Ny+1) + i1;
-			int k01 = j1*(Ny+1) + i0;
-			int k11 = j1*(Ny+1) + i1;
+			int k00 = j0*(Nx+1) + i0;
+			int k10 = j0*(Nx+1) + i1;
+			int k01 = j1*(Nx+1) + i0;
+			int k11 = j1*(Nx+1) + i1;
 
 			Vec3 v00 = base_vertices[k00];
 			Vec3 v10 = base_vertices[k10];
@@ -85,7 +90,6 @@ int main() {
 
 			Vec3 n0 = normalize(cross(v10 - v00, v11 - v00));
 			Vec3 n1 = normalize(cross(v11 - v00, v01 - v00));
-
 
 			mesh.vertices[6*k+0] = Vertex{v00, n0};
 			mesh.vertices[6*k+1] = Vertex{v10, n0};
@@ -160,16 +164,26 @@ int main() {
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	int hover_triangle = -1;
+    Vec3 hover_position;
+
+    int clicked_triangle = -1;
+    Vec3 clicked_position;
+
+    float clicked_radius = 0.1;
+
 	//
 	glClearColor(1.0, 0.7, 0.4 , 1.0);
 	while (!glfwWindowShouldClose(window)) {
-		//
+		// let GLFW handle OS events and update internal input data
 		glfwPollEvents();
 
-		//
+		// close the window at the end of the frame if Escape is pressed
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 			glfwSetWindowShouldClose(window, GLFW_TRUE);
 		}
+
+        ImGui_ImplGlfwGL3_NewFrame();
 
 		//
 		glUseProgram(program);
@@ -192,28 +206,75 @@ int main() {
         glfwGetCursorPos(window, &mx, &my);
 
         float data[4];
-        glReadPixels(int(mx), int(resy-my-1), 1, 1, GL_RGBA, GL_FLOAT, &data[0]);
+        glReadPixels(mx, resy-my-1, 1, 1, GL_RGBA, GL_FLOAT, &data[0]);
 
         // update the uniform to tell the shader which primitive is hovered
-        if ((data[0] - 1.0) < 1.0e-4 && (data[1] - 0.7) < 1.0e-4 && (data[2] - 0.4) < 1.0e-4) {
-        	glUniform1i(glGetUniformLocation(program, "chosen_triangle"), -1);
+        ImGui::Text("data = %f %f %f %f", data[0], data[1], data[2], data[3]);
+        
+        bool hit_terrain = !((fabs(data[0] - 1.0) < 1.0e-4 && fabs(data[1] - 0.7) < 1.0e-4 && fabs(data[2] - 0.4) < 1.0e-4));
+
+        if (hit_terrain) {
+        	hover_triangle = int(data[0] + 0.5);
+        	hover_position = Vec3{data[1], data[2], data[3]};
         } else {
-        	glUniform1i(glGetUniformLocation(program, "chosen_triangle"), data[0]-0.5);
-        	printf("%f %f %f\n", data[0], data[1], data[2]); fflush(stdout);
+        	hover_triangle = -1;
+        	hover_position = Vec3{0.0, 0.0, 0.0};
         }
+
+        if (hover_triangle != -1) {
+        	ImGui::Text("Hover: %d at {%f %f %f}", hover_triangle, hover_position.x, hover_position.y, hover_position.z);
+        } else {
+        	ImGui::Text("Hover: None");
+        }
+        
+
+        if (ImGui::IsMouseClicked(0)) {
+        	clicked_triangle = int(data[0] + 0.5);
+        	clicked_position = Vec3{data[1], data[2], data[3]};
+        } else if (ImGui::IsMouseReleased(0)) {
+        	clicked_triangle = int(-1);
+        	clicked_position = Vec3{0.0, 0.0, 0.0};
+        }
+
+        if (clicked_triangle != -1) {
+        	ImGui::Text("Clicked: %d at {%f %f %f}", clicked_triangle, clicked_position.x, clicked_position.y, clicked_position.z);
+        } else {
+        	ImGui::Text("Clicked: None");
+        }
+
+        clicked_radius += ImGui::GetIO().MouseWheel*0.01;
+        if (clicked_radius < 0.0) clicked_radius = 0.0;
+        if (clicked_radius > 0.5) clicked_radius = 0.5;
+
+
+    	glUniform1i(glGetUniformLocation(program, "hover_triangle"), hover_triangle);
+    	glUniform1i(glGetUniformLocation(program, "clicked_triangle"), clicked_triangle);
+
+    	glUniform3f(glGetUniformLocation(program, "hover_position"), hover_position.x, hover_position.y, hover_position.z);
+    	glUniform3f(glGetUniformLocation(program, "clicked_position"), clicked_position.x, clicked_position.y, clicked_position.z);
+
+    	glUniform1f(glGetUniformLocation(program, "clicked_radius"), clicked_radius);
 
         //
         glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
         glReadBuffer(GL_COLOR_ATTACHMENT0);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
         glBlitFramebuffer(0, 0, resx, resy,   0, 0, resx, resy,   GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        
+        //
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+        ImGui::Render();
+
 
         //
 		glfwSwapBuffers(window);
 	}
 
 	//
+	ImGui_ImplGlfwGL3_Shutdown();
+    ImGui::DestroyContext();
 	glfwTerminate();
 
 	//

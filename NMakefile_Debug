@@ -1,8 +1,8 @@
 # Debug Makefile
 
-OBJ=src\main.obj src\utils.obj
+OBJ=src\main.obj src\utils.obj imgui_impl_glfw_gl3.obj
 CFLAGS=/Iinclude /std:c++latest /EHsc /Zi
-LFLAGS=lib\glfw3.lib gdi32.lib  user32.lib libcmt.lib shell32.lib #lib\imgui.lib lib\stb.lib
+LFLAGS=lib\glfw3.lib gdi32.lib  user32.lib libcmt.lib shell32.lib lib\imgui.lib #lib\stb.lib
 
 
 all: exe  
