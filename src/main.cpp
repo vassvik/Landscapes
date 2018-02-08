@@ -52,17 +52,23 @@ int main() {
 	//
 	Mesh mesh;
 	int Nx = 20;
-	int Ny = 10;
+	int Ny = 20;
 
 	int num_vertices = (Nx+1)*(Ny+1);
 	Vec3 *base_vertices = new Vec3[3*num_vertices];
 
-	float dx = 1.0/float(Nx)*float(Nx)/float(Ny);
-	float dy = 1.0/float(Ny);
+	float dx = 0.05;
+	float dy = 0.05;
+	float min_x = 0.0;
+	float min_y = 0.0;
+	float max_x = dx*Nx; 
+	float max_y = dy*Ny;
 	for (int j = 0; j <= Ny; j++) {
 		for (int i = 0; i <= Nx; i++) {
 			int k = j*(Nx+1) + i;
-			base_vertices[k] = Vec3{float(i)*dx, float(j)*dy, 0.5f*cosf(2.0*3.14*i*dx)*cosf(2.0*3.14*j*dy)};
+			float x = min_x + float(i)*dx - (max_x + min_x)/2.0;
+			float y = min_y + float(j)*dy - (max_y + min_y)/2.0;
+			base_vertices[k] = Vec3(x, y, 0.25*cos(2.0*3.14*x)*cos(2.0*3.14*y) + 0.125*cos(4.0*3.14*x+ 3.7*y)*cos(4.0*3.14*y - 6.0*x));
 		}
 	}
 
@@ -280,8 +286,7 @@ int main() {
 
 	    Mat4 View = look_at(pos, at, Vec3(0.0, 0.0, 1.0));    
 	    Mat4 Projection = perspective(fov, resx/float(resy), 0.1, 1000.0);
-	    Mat4 Model = translate(Vec3(-1.0, -0.5, 0.0));
-	    Model = scale(Vec3(1.0, 1.0, 0.5))*Model;
+	    Mat4 Model;
 
 	    Mat4 MVP = Projection*View*Model;    
 	    glUniformMatrix4fv(glGetUniformLocation(program, "M"), 1, GL_FALSE, &Model.M[0][0]); 
