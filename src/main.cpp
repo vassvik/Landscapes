@@ -185,6 +185,8 @@ int main() {
 
         ImGui_ImplGlfwGL3_NewFrame();
 
+        ImGuiIO &io = ImGui::GetIO();
+
 		//
 		glUseProgram(program);
 		glUniform1f(glGetUniformLocation(program, "time"), glfwGetTime());
@@ -242,10 +244,48 @@ int main() {
         	ImGui::Text("Clicked: None");
         }
 
-        clicked_radius += ImGui::GetIO().MouseWheel*0.01;
-        if (clicked_radius < 0.0) clicked_radius = 0.0;
-        if (clicked_radius > 0.5) clicked_radius = 0.5;
+	    if (io.KeyCtrl) {
+	        clicked_radius += ImGui::GetIO().MouseWheel*0.01;
+	        if (clicked_radius < 0.0) clicked_radius = 0.0;
+	        if (clicked_radius > 0.5) clicked_radius = 0.5;
+	    }
 
+
+
+
+
+
+
+        	// draw
+	    static float dist = 4.0; 
+	    static float phi = 45.0; 
+	    static float theta = 90.0;   
+	    float fov = 45.0; 
+
+	    if (io.MouseDown[0]) {   
+	    	phi -= io.MouseDelta.x;     
+		    theta -= io.MouseDelta.y;
+	        if (theta > 179.0) theta = 179.0;
+	        if (theta < 1.0) theta = 1.0;
+	    } 
+
+    	dist *= pow(0.95, io.MouseWheel); 
+
+	    Vec3 pos = dist*Vec3(cos(PI/180.0*phi)*sin(PI/180.0*theta), sin(PI/180.0*phi)*sin(PI/180.0*theta), cos(PI/180.0*theta));
+	    Vec3 at = Vec3(0.0, 0.0, 0.0);
+	    Vec3 f = normalize(Vec3(at.x - pos.x, at.y - pos.y, at.z - pos.z));
+	    Vec3 u = normalize(Vec3(0.0, 0.0, 1.0));
+	    Vec3 r = normalize(cross(f,u));
+	    u = cross(r,f);
+
+	    Mat4 View = look_at(pos, at, Vec3(0.0, 0.0, 1.0));    
+	    Mat4 Projection = perspective(fov, resx/float(resy), 0.1, 1000.0);
+	    Mat4 Model = translate(Vec3(-1.0, -0.5, 0.0));
+	    Model = scale(Vec3(1.0, 1.0, 0.5))*Model;
+
+	    Mat4 MVP = Projection*View*Model;    
+	    glUniformMatrix4fv(glGetUniformLocation(program, "M"), 1, GL_FALSE, &Model.M[0][0]); 
+	    glUniformMatrix4fv(glGetUniformLocation(program, "MVP"), 1, GL_FALSE, &MVP.M[0][0]); 
 
     	glUniform1i(glGetUniformLocation(program, "hover_triangle"), hover_triangle);
     	glUniform1i(glGetUniformLocation(program, "clicked_triangle"), clicked_triangle);
