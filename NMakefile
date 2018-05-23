@@ -15,3 +15,6 @@ exe: $(OBJ)
 
 clean:
   del src\*.obj main.exe 
+
+run:
+  main.exe
