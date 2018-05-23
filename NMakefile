@@ -1,9 +1,8 @@
 # Release Makefile
 
 OBJ=src\main.obj src\utils.obj
-CFLAGS=/Iinclude /std:c++11 /EHsc #/fp:fast /Ox /openmp
-LFLAGS=lib\glfw3.lib gdi32.lib user32.lib libcmt.lib shell32.lib lib\imgui.lib #lib\stb.lib
-
+CFLAGS=/Iinclude /std:c++11 /EHsc
+LFLAGS=lib\glfw3.lib gdi32.lib user32.lib libcmt.lib shell32.lib lib\imgui.lib
 
 all: exe  
 
