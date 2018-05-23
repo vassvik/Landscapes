@@ -268,20 +268,22 @@ int main() {
         // check for collision
         bool hit_terrain = !((fabs(data[0] - 1.0) < 1.0e-4 && fabs(data[1] - 0.7) < 1.0e-4 && fabs(data[2] - 0.4) < 1.0e-4));
 
+        //  picking nad sphere of influence input
         if (hit_terrain) {
             hover_triangle = int(data[0] + 0.5);
             hover_position = Vec3{data[1], data[2], data[3]};
+
+            if (ImGui::IsMouseClicked(0)) {
+                clicked_triangle = int(data[0] + 0.5);
+                clicked_position = Vec3{data[1], data[2], data[3]};
+            } 
         } else {
             hover_triangle = -1;
             hover_position = Vec3{0.0, 0.0, 0.0};
         }
 
-        
-        // output to imgui and picking nad sphere of influence input
-        if (ImGui::IsMouseClicked(0)) {
-            clicked_triangle = int(data[0] + 0.5);
-            clicked_position = Vec3{data[1], data[2], data[3]};
-        } else if (ImGui::IsMouseReleased(0)) {
+
+        if (ImGui::IsMouseReleased(0)) {
             clicked_triangle = int(-1);
             clicked_position = Vec3{0.0, 0.0, 0.0};
         }
@@ -292,7 +294,8 @@ int main() {
             if (clicked_radius > 0.5) clicked_radius = 0.5;
         }
 
-        ImGui::Text("data = %f %f %f %f", data[0], data[1], data[2], data[3]);
+        // output to imgui 
+        ImGui::Text("data = %f %f %f %f %d", data[0], data[1], data[2], data[3], hit_terrain);
 
         if (hover_triangle != -1) {
             ImGui::Text("Hover: %d at {%f %f %f}", hover_triangle, hover_position.x, hover_position.y, hover_position.z);
