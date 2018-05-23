@@ -1,10 +1,11 @@
 #include <stdio.h>
 
-#include <glad/glad.c> // includes glad.h
+#include <glad/glad.h> // includes glad.h
 #include <GLFW/glfw3.h>
 
 #include "utils.hpp"
-#include "imgui_impl_glfw_gl3.cpp"
+#include <imgui/imgui.h>
+#include "imgui_impl_glfw_gl3.h"
  
 
 int main() {
@@ -319,7 +320,7 @@ int main() {
 
         // finally render imgui on top
         ImGui::Render();
-
+        ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
         //
         glfwSwapBuffers(window);
     }
